@@ -1,6 +1,5 @@
 import numpy as np
-import pipe
-from pipe import select, first
+from pipe import select
 import random
 import names.data_reader_csv as data_reader
 from tensorflow.keras.preprocessing.sequence import pad_sequences
