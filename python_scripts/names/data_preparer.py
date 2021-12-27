@@ -43,8 +43,8 @@ rnd_seq = list(true_seq.copy()
 total_seq = true_seq + false_seq + rnd_seq
 random.shuffle(total_seq)
 
-training_data_size = int(len(total_seq) * 2 / 100)
-total_data_size = int(len(total_seq) * 5 / 100)
+training_data_size = int(len(total_seq) * 50 / 100)
+total_data_size = int(len(total_seq) * 100 / 100)
 
 training_data = np.asarray(
     list(total_seq[:training_data_size] | select(lambda x: x[1])))
