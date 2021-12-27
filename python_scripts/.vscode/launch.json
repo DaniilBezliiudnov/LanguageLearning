@@ -11,7 +11,8 @@
             "module": "names.predicter",
             "env": {
                 "TF_ENABLE_ONEDNN_OPTS": "0",
-                "CUDA_VISIBLE_DEVICES": "-1"
+                "CUDA_VISIBLE_DEVICES": "-1",
+                "TF_CPP_MIN_LOG_LEVEL":"2"
             }
         },
         // {
