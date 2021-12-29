@@ -25,4 +25,7 @@ jobs:
         pip install matplotlib
     - name: Analysing the code with pylint
       run: |
-        pylint `ls -R|grep .py$|xargs`
+        pylint $(find . -name "*.py" | xargs)
+    - name: Running tests
+      run: |
+        pytest
