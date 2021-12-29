@@ -1,7 +1,6 @@
 import tensorflow.keras as keras
 import tensorflow.keras.layers as layers
 import matplotlib.pyplot as plt
-import names.data_preparer as data
 
 
 def print_history(history):
@@ -16,22 +15,22 @@ def print_history(history):
     plt.ylabel("accuracy/loss")
     plt.show()
 
+def train_model(data):
+    model = keras.Sequential([
+        keras.Input(shape=(len(data['training_data'][0]), )),
+        layers.Dense(30, activation='relu'),
+        layers.Dense(1, activation='sigmoid')
+    ])
 
-model = keras.Sequential([
-    keras.Input(shape=(len(data.training_data[0]), )),
-    layers.Dense(30, activation='relu'),
-    layers.Dense(1, activation='sigmoid')
-])
+    model.compile(loss='binary_crossentropy',
+                optimizer='adam', metrics=['accuracy'])
 
-model.compile(loss='binary_crossentropy',
-            optimizer='adam', metrics=['accuracy'])
-
-trainingHistory = model.fit(
-                            data.training_data,
-                            data.training_labels,
-                            batch_size=10,
-                            epochs=30,
-                            validation_data=(data.test_data, data.test_labels)
-                            )
-print(model.summary())
-print_history(trainingHistory)
+    trainingHistory = model.fit(
+                                data['training_data'],
+                                data['training_labels'],
+                                batch_size=10,
+                                epochs=30,
+                                validation_data=(data['test_data'], data['test_labels'])
+                                )
+    print(model.summary())
+    return (model, trainingHistory)
