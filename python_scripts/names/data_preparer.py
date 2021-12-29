@@ -4,24 +4,27 @@ import random
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 
-def to_normalized_int_sequence(seq):
+def to_normalized_int_sequence(seq, padding_max_len):
     padded_int_seq = pad_sequences(
         list(seq | select(lambda x:
-                          list(x | select(lambda y: ord(y))))))
+                          list(x | select(lambda y: ord(y))))), maxlen=padding_max_len)
     normalized_padded_int_seq = [x/122.0 for x in padded_int_seq]
     return normalized_padded_int_seq
 
 def date_to_normalized_int_sequence(seq):
-    return list(seq | select(lambda x: [x.year/2022., x.month/12., x.day/31.]))
+    return list(seq | select(lambda x: 
+        [x.year/2022., x.month/12., x.day/31.]))
 
-def prepare_data(names, genders, dates):
-    
-    name_seq = to_normalized_int_sequence(names)
-    gender_seq = to_normalized_int_sequence(genders)
+def normalize_merge_data(names, names_max_len, genders, dates) :
+    name_seq = to_normalized_int_sequence(names, names_max_len)
+    gender_seq = to_normalized_int_sequence(genders, 4)
     date_seq = date_to_normalized_int_sequence(dates)
-    data_seq = list(
-        map(lambda x, y, z: [*x, *y, *z], name_seq, gender_seq, date_seq))
+    return list(map(lambda x, y, z: [*x, *y, *z], name_seq, gender_seq, date_seq))
 
+
+def prepare_data(names, names_max_len, genders, dates):
+    data_seq = normalize_merge_data(names, names_max_len, genders, dates)
+    
     rev_data_seq = data_seq.copy()
     rev_data_seq.reverse()
 
@@ -39,7 +42,7 @@ def prepare_data(names, genders, dates):
     total_seq = true_seq + false_seq + rnd_seq
     random.shuffle(total_seq)
 
-    training_data_size = int(len(total_seq) * 50 / 100)
+    training_data_size = int(len(total_seq) * 80 / 100)
     total_data_size = int(len(total_seq) * 100 / 100)
 
     training_data = np.asarray(
