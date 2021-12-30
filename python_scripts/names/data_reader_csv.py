@@ -1,5 +1,5 @@
 import csv
-import names.config as config
+import config as config
 from faker import Faker
 
 def get_data(path):

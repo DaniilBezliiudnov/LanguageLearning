@@ -15,7 +15,7 @@ def print_history(history):
     plt.ylabel("accuracy/loss")
     plt.show()
 
-def train_model(data):
+def create_model(data):
     model = keras.Sequential([
         keras.Input(shape=(len(data['training_data'][0]), )),
         layers.Dense(30, activation='relu'),
@@ -26,13 +26,18 @@ def train_model(data):
                                 beta_1=0.9, beta_2=0.999, amsgrad=False)
     model.compile(loss='binary_crossentropy',
                 optimizer=adam, metrics=['accuracy'])
+    
+    print(model.summary())
+    
+    return model
 
+def train_model(model : keras.Sequential, data):
     trainingHistory = model.fit(
                                 data['training_data'],
                                 data['training_labels'],
                                 batch_size=10,
-                                epochs=30,
+                                epochs=50,
                                 validation_data=(data['test_data'], data['test_labels'])
                                 )
-    print(model.summary())
-    return (model, trainingHistory)
+
+    return trainingHistory
