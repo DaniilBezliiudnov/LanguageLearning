@@ -1,5 +1,4 @@
 import csv
-import config as config
 from faker import Faker
 
 def get_data(path):
@@ -8,7 +7,7 @@ def get_data(path):
     genders = []
     dates = []
     print('start read')
-    with open(config.root_dir + path, encoding='UTF-8') as csvfile:
+    with open(path, encoding='UTF-8') as csvfile:
         reader = csv.reader(csvfile, delimiter=",")
         for row in reader:
             names.append(row[0].lower())
@@ -16,3 +15,4 @@ def get_data(path):
             dates.append(fake.date_between(start_date='-100y', end_date='now'))
     print('end read')
     return (names, genders, dates)
+
