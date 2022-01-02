@@ -1,8 +1,8 @@
-import tensorflow as tf
-import tensorflow.keras as keras
-import tensorflow.keras.layers as layers
-import matplotlib.pyplot as plt
 from datetime import datetime
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+from matplotlib import pyplot as plt
 import numpy as np
 
 def print_history(history):
@@ -24,14 +24,12 @@ def create_model(data):
         layers.Dense(1, activation='sigmoid')
     ])
 
-
     # adam = keras.optimizers.Adam(learning_rate=0.0001,
     #                             beta_1=0.9, beta_2=0.999, amsgrad=False)
+
     model.compile(loss='binary_crossentropy',
                 optimizer='adam', metrics=['accuracy'])
-    
     print(model.summary())
-    
     return model
 
 def create_model_v2(data):
@@ -45,7 +43,7 @@ def create_model_v2(data):
     input_gender_2 = keras.Input(name="gender_2", shape=(gender_len, ))
     input_dob_1 = keras.Input(name="dob_1", shape=(dob_len, ))
     input_dob_2 = keras.Input(name="dob_2", shape=(dob_len, ))
-    
+
     layer_1_input_name_1 = layers.Dense(name_len, activation='relu')(input_name_1)
     layer_1_input_name_2 = layers.Dense(name_len, activation='relu')(input_name_2)
     layer_1_input_gender_1 = layers.Dense(gender_len, activation='relu')(input_gender_1)
@@ -60,11 +58,11 @@ def create_model_v2(data):
     layer_3_names = layers.Dense(2*name_len, activation='relu')(layer_2_names)
     layer_3_genders = layers.Dense(2*gender_len, activation='relu')(layer_2_genders)
     layer_3_dobs = layers.Dense(2*dob_len, activation='relu')(layer_2_dobs)
-    
+
     layer_4_combined = layers.Concatenate()([layer_3_names, layer_3_genders, layer_3_dobs])
     layer_5_brain = layers.Dense(5, activation='relu')(layer_4_combined)
     layer_6_decider = layers.Dense(1, activation='sigmoid')(layer_5_brain)
-    
+
     model = keras.Model(inputs=[
         input_name_1,
         input_gender_1,
@@ -78,7 +76,6 @@ def create_model_v2(data):
 
     model.compile(loss='binary_crossentropy',
                 optimizer='adam', metrics=['accuracy'])
-    
     # print(model.summary())
 
     return model
@@ -97,17 +94,17 @@ def train_model(model : keras.Sequential, data, epochs):
     logdir="logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S")
     tensorboard_callback = keras.callbacks.TensorBoard(log_dir=logdir)
 
-    x = to_dict(data['training_data'])
-    y = tf.convert_to_tensor(data['training_labels'])
+    x_train = to_dict(data['training_data'])
+    y_train = tf.convert_to_tensor(data['training_labels'])
     x_val = to_dict(data['test_data'])
     y_val = tf.convert_to_tensor(data['test_labels'])
-    trainingHistory = model.fit(
-                                x,
-                                y,
+    training_history = model.fit(
+                                x_train,
+                                y_train,
                                 # batch_size=30,
                                 epochs=epochs,
                                 validation_data=(x_val, y_val),
                                 callbacks=[tensorboard_callback]
                                 )
 
-    return trainingHistory
+    return training_history

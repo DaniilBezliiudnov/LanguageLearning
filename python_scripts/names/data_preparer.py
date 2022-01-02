@@ -24,10 +24,10 @@ def normalize_merge_data(names, names_max_len, genders, dates):
     return list(map(lambda x, y, z: (x, y, z), name_seq, gender_seq, date_seq))
 
 
-def randomize_list(l: list):
-    l_new = l.copy()
-    li = random.randint(0, len(l_new)-1)
-    l_new[li] = l_new[li] + (random.random() - 1) * 0.1
+def randomize_list(list_to_sort: list):
+    l_new = list_to_sort.copy()
+    l_index = random.randint(0, len(l_new)-1)
+    l_new[l_index] = l_new[l_index] + (random.random() - 1) * 0.1
     return l_new
 
 
@@ -62,7 +62,7 @@ def prepare_data(names, names_max_len, genders, dates, total_data_percent):
 
     total_data_size = int(len(total_seq) * total_data_percent / 100)
     training_data_size = int(total_data_size * 60 / 100)
-    
+
     training_data = np.asarray(
         list(total_seq[:training_data_size] | select(lambda x: x[1])))
     training_labels = np.asarray(
