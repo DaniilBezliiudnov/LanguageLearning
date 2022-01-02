@@ -97,8 +97,6 @@ def train_model(model : keras.Sequential, data, epochs):
     logdir="logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S")
     tensorboard_callback = keras.callbacks.TensorBoard(log_dir=logdir)
 
-
-
     x = to_dict(data['training_data'])
     y = tf.convert_to_tensor(data['training_labels'])
     x_val = to_dict(data['test_data'])
