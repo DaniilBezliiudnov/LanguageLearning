@@ -25,7 +25,7 @@ jobs:
         pip install matplotlib
     - name: Analysing the code with pylint
       run: |
-        pylint '--disable=missing-function-docstring, missing-module-docstring' $(find . -name "*.py" | xargs)
+        pylint '--disable=missing-function-docstring, missing-module-docstring, no-value-for-parameter' $(find . -name "*.py" | xargs)
     - name: Running tests
       run: |
         pytest

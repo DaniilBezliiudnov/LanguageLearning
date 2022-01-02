@@ -36,7 +36,7 @@ def randomize(list_of_lists):
         randomize_list(list_of_lists[0]),
         randomize_list(list_of_lists[1]),
         randomize_list(list_of_lists[2])
-        )
+    )
 
 
 def prepare_seq(seq_a, seq_b, label):
@@ -44,28 +44,11 @@ def prepare_seq(seq_a, seq_b, label):
         map(lambda x, y: (label, [x[0], x[1], x[2], y[0], y[1], y[2]]), seq_a, seq_b))
 
 
-def prepare_data(names, names_max_len, genders, dates, total_data_percent):
-    data_seq = normalize_merge_data(names, names_max_len, genders, dates)
-
-    rev_data_seq = data_seq.copy()
-    rev_data_seq.reverse()
-
-    shifted_data_seq = data_seq.copy()
-    shifted_data_seq.insert(0, shifted_data_seq.pop())
-
-    true_seq = prepare_seq(data_seq, data_seq, 1)
-    rnd_seq = prepare_seq(data_seq, (data_seq | select(randomize)), 1)
-    rnd_seq2 = prepare_seq(data_seq, (data_seq | select(randomize)), 1)
-    rnd_seq3 = prepare_seq(data_seq, (data_seq | select(randomize)), 1)
-    rnd_seq4 = prepare_seq(data_seq, (data_seq | select(randomize)), 1)
-    false_seq = prepare_seq(data_seq, rev_data_seq, 0)
-    shifted_seq = prepare_seq(data_seq, shifted_data_seq, 0)
-
-    total_seq = true_seq + false_seq + shifted_seq + rnd_seq + rnd_seq2 + rnd_seq3 + rnd_seq4
-    random.shuffle(total_seq)
-
+def finalize_data_preparation(total_seq, total_data_percent):
     total_data_size = int(len(total_seq) * total_data_percent / 100)
     training_data_size = int(total_data_size * 60 / 100)
+
+    random.shuffle(total_seq)
 
     training_data = np.asarray(
         list(total_seq[:training_data_size] | select(lambda x: x[1])))
@@ -88,3 +71,26 @@ def prepare_data(names, names_max_len, genders, dates, total_data_percent):
         'test_data': test_data,
         'test_labels': test_labels
     }
+
+
+def prepare_data(names, names_max_len, genders, dates, total_data_percent):
+    data_seq = normalize_merge_data(names, names_max_len, genders, dates)
+
+    rev_data_seq = data_seq.copy()
+    rev_data_seq.reverse()
+
+    shifted_data_seq = data_seq.copy()
+    shifted_data_seq.insert(0, shifted_data_seq.pop())
+
+    true_seq = prepare_seq(data_seq, data_seq, 1)
+    rnd_seq = prepare_seq(data_seq, (data_seq | select(randomize)), 1)
+    rnd_seq2 = prepare_seq(data_seq, (data_seq | select(randomize)), 1)
+    rnd_seq3 = prepare_seq(data_seq, (data_seq | select(randomize)), 1)
+    rnd_seq4 = prepare_seq(data_seq, (data_seq | select(randomize)), 1)
+    false_seq = prepare_seq(data_seq, rev_data_seq, 0)
+    shifted_seq = prepare_seq(data_seq, shifted_data_seq, 0)
+
+    total_seq = true_seq + false_seq + shifted_seq + \
+        rnd_seq + rnd_seq2 + rnd_seq3 + rnd_seq4
+
+    return finalize_data_preparation(total_seq, total_data_percent)
