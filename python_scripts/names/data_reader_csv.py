@@ -15,4 +15,3 @@ def get_data(path):
             dates.append(fake.date_between(start_date='-100y', end_date='now'))
     print('end read')
     return (names, genders, dates)
-

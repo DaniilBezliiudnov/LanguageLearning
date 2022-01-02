@@ -1,7 +1,7 @@
-import names.config as config
+from names import config
 import names.data_reader_csv as data_reader
 import names.data_preparer as data
-import names.model as model
+from names import model
 
 (names, genders, dates) = data_reader.get_data(config.root_dir + '\\data\\names.csv')
 staticData = data.prepare_data(names, len(names[0]), genders, dates, 50)
