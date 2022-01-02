@@ -38,7 +38,7 @@ def create_model_v2(data):
     name_len = len(data['training_data'][0][0])
     gender_len = len(data['training_data'][0][1])
     dob_len = len(data['training_data'][0][2])
-    
+
     input_name_1 = keras.Input(name="name_1", shape=(name_len, ))
     input_name_2 = keras.Input(name="name_2", shape=(name_len, ))
     input_gender_1 = keras.Input(name="gender_1", shape=(gender_len, ))
@@ -52,11 +52,11 @@ def create_model_v2(data):
     layer_1_input_gender_2 = layers.Dense(gender_len, activation='relu')(input_gender_2)
     layer_1_input_dob_1 = layers.Dense(dob_len, activation='relu')(input_dob_1)
     layer_1_input_dob_2 = layers.Dense(dob_len, activation='relu')(input_dob_2)
-    
+
     layer_2_names = layers.Concatenate()([layer_1_input_name_1, layer_1_input_name_2])
     layer_2_genders = layers.Concatenate()([layer_1_input_gender_1, layer_1_input_gender_2])
     layer_2_dobs = layers.Concatenate()([layer_1_input_dob_1, layer_1_input_dob_2])
-    
+
     layer_3_names = layers.Dense(2*name_len, activation='relu')(layer_2_names)
     layer_3_genders = layers.Dense(2*gender_len, activation='relu')(layer_2_genders)
     layer_3_dobs = layers.Dense(2*dob_len, activation='relu')(layer_2_dobs)

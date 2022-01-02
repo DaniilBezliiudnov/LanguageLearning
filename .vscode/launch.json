@@ -16,17 +16,6 @@
                 "CUDA_VISIBLE_DEVICES": "-1",
                 // "TF_CPP_MIN_LOG_LEVEL":"2"
             }
-        },
-        // {
-        //     "name": "Python: Current File",
-        //     "type": "python",
-        //     "request": "launch",
-        //     "program": "${file}",
-        //     "console": "integratedTerminal",
-        //     "env": {
-        //         "TF_ENABLE_ONEDNN_OPTS": "0",
-        //         "CUDA_VISIBLE_DEVICES": "-1"
-        //     }
-        // }
+        }
     ]
 }
