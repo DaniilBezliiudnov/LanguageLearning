@@ -1,6 +1,6 @@
-{
-    "python.linting.pylintEnabled": true,
-    "python.linting.enabled": true,
-    "python.languageServer": "None",
-    "python.linting.pylintArgs": ["--disable=missing-function-docstring, missing-module-docstring"]
-}
+// {
+//     "python.linting.pylintEnabled": true,
+//     "python.linting.enabled": true,
+//     "python.languageServer": "None",
+//     "python.linting.pylintArgs": ["--disable=missing-function-docstring, missing-module-docstring"]
+// }

@@ -31,8 +31,12 @@ def randomize_list(list_to_sort: list):
     return l_new
 
 
-def randomize(x):
-    return (randomize_list(x[0]), randomize_list(x[1]), randomize_list(x[2]))
+def randomize(list_of_lists):
+    return (
+        randomize_list(list_of_lists[0]),
+        randomize_list(list_of_lists[1]),
+        randomize_list(list_of_lists[2])
+        )
 
 
 def prepare_seq(seq_a, seq_b, label):
