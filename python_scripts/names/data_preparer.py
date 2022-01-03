@@ -19,7 +19,7 @@ def date_to_normalized_int_sequence(seq):
 
 def normalize_merge_data(names, names_max_len, genders, dates):
     name_seq = to_normalized_int_sequence(names, names_max_len)
-    gender_seq = to_normalized_int_sequence(genders, 4)
+    gender_seq = to_normalized_int_sequence(genders, 1)
     date_seq = date_to_normalized_int_sequence(dates)
     return list(map(lambda x, y, z: (x, y, z), name_seq, gender_seq, date_seq))
 
@@ -34,7 +34,7 @@ def randomize_list(list_to_sort: list):
 def randomize(list_of_lists):
     return (
         randomize_list(list_of_lists[0]),
-        randomize_list(list_of_lists[1]),
+        list_of_lists[1],
         randomize_list(list_of_lists[2])
     )
 
