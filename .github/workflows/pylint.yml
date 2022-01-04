@@ -23,6 +23,8 @@ jobs:
         pip install pipe
         pip install numpy
         pip install matplotlib
+        pip install fuzzywuzzy
+        pip install python-Levenshtein
     - name: Analysing the code with pylint
       run: |
         pylint '--disable=missing-function-docstring, missing-module-docstring, no-value-for-parameter' $(find . -name "*.py" | xargs)
