@@ -20,7 +20,7 @@ prediction_data = list(map(
                normalized_data[0][1],
                normalized_data[0][2],
                x[0], x[1], x[2]],
-    normalized_data))[0:1000]
+    normalized_data))
 
 indicies = predict(my_model, prediction_data)
 dups = list(map(
