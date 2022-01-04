@@ -62,12 +62,12 @@ def create_model_v2(data):
     layer_2_dobs = layers.Concatenate()([layer_1_input_dob1, layer_1_input_dob2])
     layer_2_dobs = layers.Flatten()(layer_2_dobs)
 
-    layer_3_names = layers.Dense(60, activation='relu')(layer_2_names)
-    layer_3_genders = layers.Dense(20, activation='relu')(layer_2_genders)
-    layer_3_dobs = layers.Dense(80, activation='relu')(layer_2_dobs)
+    # layer_3_names = layers.Dense(60, activation='relu')(layer_2_names)
+    # layer_3_genders = layers.Dense(20, activation='relu')(layer_2_genders)
+    # layer_3_dobs = layers.Dense(80, activation='relu')(layer_2_dobs)
 
-    layer_4_combined = layers.Concatenate()([layer_3_names, layer_3_genders, layer_3_dobs])
-    layer_5_brain = layers.Dense(10, activation='relu')(layer_4_combined)
+    layer_4_combined = layers.Concatenate()([layer_2_names, layer_2_genders, layer_2_dobs])
+    layer_5_brain = layers.Dense(100, activation='relu')(layer_4_combined)
     layer_6_decider = layers.Dense(1, activation='sigmoid')(layer_5_brain)
 
     model = keras.Model(inputs=[
