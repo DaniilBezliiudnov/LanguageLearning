@@ -60,14 +60,14 @@ def create_model_v2(data):
     layer_2_dobs = layers.Concatenate()(
         [layer_1_input_dob_1, layer_1_input_dob_2])
 
-    layer_3_names = layers.Dense(2*name_len, activation='relu')(layer_2_names)
+    layer_3_names = layers.Dense(name_len, activation='relu')(layer_2_names)
     layer_3_genders = layers.Dense(
         2*gender_len, activation='relu')(layer_2_genders)
     layer_3_dobs = layers.Dense(2*dob_len, activation='relu')(layer_2_dobs)
 
     layer_4_combined = layers.Concatenate()(
         [layer_3_names, layer_3_genders, layer_3_dobs])
-    layer_5_brain = layers.Dense(5, activation='relu')(layer_4_combined)
+    layer_5_brain = layers.Dense(10, activation='relu')(layer_4_combined)
     layer_6_decider = layers.Dense(1, activation='sigmoid')(layer_5_brain)
 
     model = keras.Model(inputs=[
@@ -100,7 +100,8 @@ def to_dict(seq):
 
 
 def train_model(model: keras.Sequential, data, epochs):
-    logdir = "logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+    logdir = f'logs/fit/{epochs}/' + \
+        datetime.now().strftime("%Y%m%d-%H%M%S")
     tensorboard_callback = keras.callbacks.TensorBoard(log_dir=logdir)
 
     x_train = to_dict(data['training_data'])

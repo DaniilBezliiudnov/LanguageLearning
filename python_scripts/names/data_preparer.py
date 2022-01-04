@@ -12,15 +12,15 @@ def to_normalized_int_sequence(seq, padding_max_len):
     return normalized_padded_int_seq
 
 
-def date_to_normalized_int_sequence(seq):
-    return list(seq | select(lambda x:
-                             [x.year/2022., x.month/12., x.day/31.]))
+def date_to_str_sequence(seq):
+    return list(seq | select(lambda x: x.strftime("%Y%m%d")))
 
 
 def normalize_merge_data(names, names_max_len, genders, dates):
     name_seq = to_normalized_int_sequence(names, names_max_len)
     gender_seq = to_normalized_int_sequence(genders, 1)
-    date_seq = date_to_normalized_int_sequence(dates)
+    date_seq = date_to_str_sequence(dates)
+    date_seq = to_normalized_int_sequence(date_seq, 8)
     return list(map(lambda x, y, z: (x, y, z), name_seq, gender_seq, date_seq))
 
 

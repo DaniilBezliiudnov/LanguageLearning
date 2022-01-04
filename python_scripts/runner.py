@@ -11,7 +11,7 @@ from functools import reduce
 train_data = data_preparer.prepare_data(
     names, len(names[0]), genders, dates, 100)
 my_model = model.create_model_v2(train_data)
-history = model.train_model(my_model, train_data, 20)
+history = model.train_model(my_model, train_data, 80)
 
 normalized_data = data_preparer.normalize_merge_data(
     names, len(names[0]), genders, dates)
@@ -24,7 +24,7 @@ prediction_data = list(map(
 
 indicies = predict(my_model, prediction_data)
 dups = list(map(
-    lambda i: f'{names[0]}-{genders[0]}-{dates[0]} | {names[i]}-{genders[i]}-{dates[i]}',
+    lambda i: f'{i[1]:.2} : {names[0]}-{genders[0]}-{dates[0]} | {names[i[0]]}-{genders[i[0]]}-{dates[i[0]]}',
     indicies))
 print('\n'.join(dups))
 # model.print_history(history)
