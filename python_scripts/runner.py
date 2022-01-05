@@ -1,6 +1,6 @@
 from names import config
 import names.data_reader_csv as data_reader
-import names.data_preparer as data_preparer
+from names import data_preparer
 from names import model
 from predicter import predict
 
@@ -17,15 +17,15 @@ normalized_data = data_preparer.normalize_merge_data(
 for i, x in enumerate(normalized_data):
 
     prediction_data = list(map(
-        lambda x: [normalized_data[i][0],
-                   normalized_data[i][1],
-                   normalized_data[i][2],
-                   x[0], x[1], x[2]],
+        lambda s, i=i: [normalized_data[i][0],
+                        normalized_data[i][1],
+                        normalized_data[i][2],
+                        s[0], s[1], s[2]],
         normalized_data[i+1:]))
 
     indicies = predict(my_model, prediction_data)
     dups = list(map(
-        lambda j: f'{j[1]:.2} : {names[i]}-{genders[i]}-{dates[i]} | {names[j[0]]}-{genders[j[0]]}-{dates[j[0]]}',
+        lambda j, i=i: f'{j[1]:.2} : {names[i]}-{genders[i]}-{dates[i]} | {names[j[0]]}-{genders[j[0]]}-{dates[j[0]]}',
         indicies))
     print('\n'.join(dups))
 # model.print_history(history)

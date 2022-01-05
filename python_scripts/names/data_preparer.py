@@ -7,7 +7,7 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 def to_padded_int_sequence(seq, padding_max_len):
     padded_int_seq = pad_sequences(
         list(seq | select(lambda x:
-                          list(x | select(lambda y: ord(y))))), maxlen=padding_max_len)
+                          list(x | select(ord)))), maxlen=padding_max_len)
     return padded_int_seq
 
 

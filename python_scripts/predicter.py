@@ -1,4 +1,4 @@
-from pipe import where, select
+from pipe import where
 from tensorflow.keras import Model
 from names.model import to_dict
 

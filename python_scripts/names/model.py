@@ -3,7 +3,6 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers, callbacks
 from matplotlib import pyplot as plt
-from pipe import select
 import numpy as np
 from fuzzywuzzy import fuzz
 
@@ -90,9 +89,9 @@ def create_model_v1p5(data):
     return model
 
 
-def fuzzyChecker(seq1, seq2):
-    chars = "".join(list(map(lambda x: chr(x), seq1)))
-    chars2 = "".join(list(map(lambda x: chr(x), seq2)))
+def fuzzy_checker(seq1, seq2):
+    chars = "".join(list(map(chr, seq1)))
+    chars2 = "".join(list(map(chr, seq2)))
     return fuzz.ratio(chars, chars2)
 
 
@@ -112,6 +111,8 @@ def create_model_v2(data):
 
     i_name_1_rs = layers.Rescaling(scale=1./61, offset=-1)(i_name_1)
     i_name_2_rs = layers.Rescaling(scale=1./61, offset=-1)(i_name_2)
+    i_gender_1_rs = layers.Rescaling(scale=1./61, offset=-1)(i_gender_1)
+    i_gender_2_rs = layers.Rescaling(scale=1./61, offset=-1)(i_gender_2)
     i_dob_1_rs = layers.Rescaling(scale=1./29, offset=-1)(i_dob_1)
     i_dob_2_rs = layers.Rescaling(scale=1./29, offset=-1)(i_dob_2)
     i_fuzz_n_rs = layers.Rescaling(scale=1./50, offset=-1)(i_fuzz_n)
@@ -124,15 +125,15 @@ def create_model_v2(data):
 
     l2_names = layers.Concatenate()([l1_name1, l1_name2])
     l2_names = layers.Flatten()(l2_names)
-    l2_genders = layers.Concatenate()([i_gender_1, i_gender_2])
+    l2_genders = layers.Concatenate()([i_gender_1_rs, i_gender_2_rs])
     l2_dobs = layers.Concatenate()([l1_dob1, l1_dob2])
     l2_dobs = layers.Flatten()(l2_dobs)
 
-    l3_names = layers.Dense(10, activation='relu')(l2_names)
-    l3_genders = layers.Dense(10, activation='relu')(l2_genders)
-    l3_dobs = layers.Dense(10, activation='relu')(l2_dobs)
-    l3_fuzz_g = layers.Dense(10, activation='relu')(i_fuzz_n_rs)
-    l3_fuzz_n = layers.Dense(10, activation='relu')(i_fuzz_g_rs)
+    l3_names = layers.Dense(5, activation='tanh')(l2_names)
+    l3_genders = layers.Dense(10, activation='tanh')(l2_genders)
+    l3_dobs = layers.Dense(10, activation='tanh')(l2_dobs)
+    l3_fuzz_n = layers.Dense(10, activation='tanh')(i_fuzz_n_rs)
+    l3_fuzz_g = layers.Dense(5, activation='tanh')(i_fuzz_g_rs)
 
     l4_combined = layers.Concatenate()(
         [l3_names, l3_genders, l3_dobs, l3_fuzz_g, l3_fuzz_n])
@@ -167,8 +168,8 @@ def to_dict(seq):
         "name_2":  np.asarray(list(map(lambda x: np.asarray(x[3]), seq))),
         "gender_2":  np.asarray(list(map(lambda x: np.asarray(x[4]), seq))),
         "dob_2":  np.asarray(list(map(lambda x: np.asarray(x[5]), seq))),
-        "fuzz_n": np.asarray(list(map(lambda x: fuzzyChecker(x[0], x[3]), seq))),
-        "fuzz_g": np.asarray(list(map(lambda x: fuzzyChecker(x[2], x[5]), seq)))
+        "fuzz_n": np.asarray(list(map(lambda x: fuzzy_checker(x[0], x[3]), seq))),
+        "fuzz_g": np.asarray(list(map(lambda x: fuzzy_checker(x[2], x[5]), seq)))
     }
 
 
