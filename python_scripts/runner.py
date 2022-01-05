@@ -24,8 +24,9 @@ for i, x in enumerate(normalized_data):
         normalized_data[i+1:]))
 
     indicies = predict(my_model, prediction_data)
-    dups = list(map(
-        lambda j, i=i: f'{j[1]:.2} : {names[i]}-{genders[i]}-{dates[i]} | {names[j[0]]}-{genders[j[0]]}-{dates[j[0]]}',
-        indicies))
+    dups = list(map(lambda j, i=i:
+                    f'{j[1]:.2} : {names[i]}-{genders[i]}-{dates[i]}' +
+                    f' | {names[j[0]]}-{genders[j[0]]}-{dates[j[0]]}',
+                    indicies))
     print('\n'.join(dups))
 # model.print_history(history)

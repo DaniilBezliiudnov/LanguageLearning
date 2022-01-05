@@ -81,15 +81,12 @@ def prepare_data(names, names_max_len, genders, dates, total_data_percent):
     shifted_data_seq = data_seq.copy()
     shifted_data_seq.insert(0, shifted_data_seq.pop())
 
-    true_seq = prepare_seq(data_seq, data_seq, 1)
-    rnd_seq = prepare_seq(data_seq, (data_seq | select(randomize)), 1)
-    rnd_seq2 = prepare_seq(data_seq, (data_seq | select(randomize)), 1)
-    rnd_seq3 = prepare_seq(data_seq, (data_seq | select(randomize)), 1)
-    rnd_seq4 = prepare_seq(data_seq, (data_seq | select(randomize)), 1)
-    false_seq = prepare_seq(data_seq, rev_data_seq, 0)
-    shifted_seq = prepare_seq(data_seq, shifted_data_seq, 0)
-
-    total_seq = true_seq + false_seq + rnd_seq + shifted_seq + \
-        rnd_seq + rnd_seq2 + rnd_seq3 + rnd_seq4
+    total_seq = prepare_seq(data_seq, data_seq, 1)
+    total_seq += prepare_seq(data_seq, (data_seq | select(randomize)), 1)
+    total_seq += prepare_seq(data_seq, (data_seq | select(randomize)), 1)
+    total_seq += prepare_seq(data_seq, (data_seq | select(randomize)), 1)
+    total_seq += prepare_seq(data_seq, (data_seq | select(randomize)), 1)
+    total_seq += prepare_seq(data_seq, rev_data_seq, 0)
+    total_seq += prepare_seq(data_seq, shifted_data_seq, 0)
 
     return finalize_data_preparation(total_seq, total_data_percent)
