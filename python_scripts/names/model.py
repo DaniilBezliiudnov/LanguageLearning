@@ -2,6 +2,7 @@ from datetime import datetime
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers, callbacks
+from keras.layers.preprocessing import image_preprocessing as p_layers
 from matplotlib import pyplot as plt
 import numpy as np
 from fuzzywuzzy import fuzz
@@ -40,14 +41,14 @@ def create_model_v2(data):
     i_fuzz_n = keras.Input(name="fuzz_n", shape=(1, ))
     i_fuzz_g = keras.Input(name="fuzz_g", shape=(1, ))
 
-    i_name_1_rs = layers.Rescaling(scale=1./61, offset=-1)(i_name_1)
-    i_name_2_rs = layers.Rescaling(scale=1./61, offset=-1)(i_name_2)
-    i_gender_1_rs = layers.Rescaling(scale=1./61, offset=-1)(i_gender_1)
-    i_gender_2_rs = layers.Rescaling(scale=1./61, offset=-1)(i_gender_2)
-    i_dob_1_rs = layers.Rescaling(scale=1./29, offset=-1)(i_dob_1)
-    i_dob_2_rs = layers.Rescaling(scale=1./29, offset=-1)(i_dob_2)
-    i_fuzz_n_rs = layers.Rescaling(scale=1./50, offset=-1)(i_fuzz_n)
-    i_fuzz_g_rs = layers.Rescaling(scale=1./50, offset=-1)(i_fuzz_g)
+    i_name_1_rs = p_layers.Rescaling(scale=1./61, offset=-1)(i_name_1)
+    i_name_2_rs = p_layers.Rescaling(scale=1./61, offset=-1)(i_name_2)
+    i_gender_1_rs = p_layers.Rescaling(scale=1./61, offset=-1)(i_gender_1)
+    i_gender_2_rs = p_layers.Rescaling(scale=1./61, offset=-1)(i_gender_2)
+    i_dob_1_rs = p_layers.Rescaling(scale=1./29, offset=-1)(i_dob_1)
+    i_dob_2_rs = p_layers.Rescaling(scale=1./29, offset=-1)(i_dob_2)
+    i_fuzz_n_rs = p_layers.Rescaling(scale=1./50, offset=-1)(i_fuzz_n)
+    i_fuzz_g_rs = p_layers.Rescaling(scale=1./50, offset=-1)(i_fuzz_g)
 
     l1_name1 = layers.LocallyConnected1D(10, 3, activation='relu')(i_name_1_rs)
     l1_name2 = layers.LocallyConnected1D(10, 3, activation='relu')(i_name_2_rs)
