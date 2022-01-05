@@ -107,15 +107,15 @@ def create_model_v2(data):
     i_gender_2 = keras.Input(name="gender_2", shape=(gender_len, ))
     i_dob_1 = keras.Input(name="dob_1", shape=(dob_len, 1))
     i_dob_2 = keras.Input(name="dob_2", shape=(dob_len, 1))
-    i_fuzz = keras.Input(name="fuzz", shape=(1, ))
+    i_fuzz_n = keras.Input(name="fuzz_n", shape=(1, ))
+    i_fuzz_g = keras.Input(name="fuzz_g", shape=(1, ))
 
     i_name_1_rs = layers.Rescaling(scale=1./61, offset=-1)(i_name_1)
     i_name_2_rs = layers.Rescaling(scale=1./61, offset=-1)(i_name_2)
-
     i_dob_1_rs = layers.Rescaling(scale=1./29, offset=-1)(i_dob_1)
     i_dob_2_rs = layers.Rescaling(scale=1./29, offset=-1)(i_dob_2)
-
-    i_fuzz_rs = layers.Rescaling(scale=1./50, offset=-1)(i_fuzz)
+    i_fuzz_n_rs = layers.Rescaling(scale=1./50, offset=-1)(i_fuzz_n)
+    i_fuzz_g_rs = layers.Rescaling(scale=1./50, offset=-1)(i_fuzz_g)
 
     l1_name1 = layers.LocallyConnected1D(10, 3, activation='relu')(i_name_1_rs)
     l1_name2 = layers.LocallyConnected1D(10, 3, activation='relu')(i_name_2_rs)
@@ -131,10 +131,11 @@ def create_model_v2(data):
     l3_names = layers.Dense(10, activation='relu')(l2_names)
     l3_genders = layers.Dense(10, activation='relu')(l2_genders)
     l3_dobs = layers.Dense(10, activation='relu')(l2_dobs)
-    l3_fuzz = layers.Dense(10, activation='relu')(i_fuzz_rs)
+    l3_fuzz_g = layers.Dense(10, activation='relu')(i_fuzz_n_rs)
+    l3_fuzz_n = layers.Dense(10, activation='relu')(i_fuzz_g_rs)
 
     l4_combined = layers.Concatenate()(
-        [l3_names, l3_genders, l3_dobs, l3_fuzz])
+        [l3_names, l3_genders, l3_dobs, l3_fuzz_g, l3_fuzz_n])
     l5_brain = layers.Dense(20, activation='relu')(l4_combined)
     l6_decider = layers.Dense(1, activation='sigmoid')(l5_brain)
 
@@ -145,7 +146,8 @@ def create_model_v2(data):
         i_name_2,
         i_gender_2,
         i_dob_2,
-        i_fuzz
+        i_fuzz_n,
+        i_fuzz_g
     ], outputs=[
         l6_decider
     ])
@@ -165,7 +167,8 @@ def to_dict(seq):
         "name_2":  np.asarray(list(map(lambda x: np.asarray(x[3]), seq))),
         "gender_2":  np.asarray(list(map(lambda x: np.asarray(x[4]), seq))),
         "dob_2":  np.asarray(list(map(lambda x: np.asarray(x[5]), seq))),
-        "fuzz": np.asarray(list(map(lambda x: fuzzyChecker(x[0], x[3]), seq)))
+        "fuzz_n": np.asarray(list(map(lambda x: fuzzyChecker(x[0], x[3]), seq))),
+        "fuzz_g": np.asarray(list(map(lambda x: fuzzyChecker(x[2], x[5]), seq)))
     }
 
 
