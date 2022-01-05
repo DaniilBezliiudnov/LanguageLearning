@@ -3,7 +3,9 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers, callbacks
 from matplotlib import pyplot as plt
+from pipe import select
 import numpy as np
+from fuzzywuzzy import fuzz
 
 
 def print_history(history):
@@ -87,9 +89,11 @@ def create_model_v1p5(data):
 
     return model
 
-def fuzzyChecker(x):
-    print(x)
-    return x
+
+def fuzzyChecker(seq1, seq2):
+    chars = "".join(list(map(lambda x: chr(x), seq1)))
+    chars2 = "".join(list(map(lambda x: chr(x), seq2)))
+    return fuzz.ratio(chars, chars2)
 
 
 def create_model_v2(data):
@@ -97,63 +101,53 @@ def create_model_v2(data):
     gender_len = len(data['training_data'][0][1])
     dob_len = len(data['training_data'][0][2])
 
-    input_name_1 = keras.Input(name="name_1", shape=(name_len, 1))
-    input_name_2 = keras.Input(name="name_2", shape=(name_len, 1))
-    input_gender_1 = keras.Input(name="gender_1", shape=(gender_len, ))
-    input_gender_2 = keras.Input(name="gender_2", shape=(gender_len, ))
-    input_dob_1 = keras.Input(name="dob_1", shape=(dob_len, 1))
-    input_dob_2 = keras.Input(name="dob_2", shape=(dob_len, 1))
+    i_name_1 = keras.Input(name="name_1", shape=(name_len, 1))
+    i_name_2 = keras.Input(name="name_2", shape=(name_len, 1))
+    i_gender_1 = keras.Input(name="gender_1", shape=(gender_len, ))
+    i_gender_2 = keras.Input(name="gender_2", shape=(gender_len, ))
+    i_dob_1 = keras.Input(name="dob_1", shape=(dob_len, 1))
+    i_dob_2 = keras.Input(name="dob_2", shape=(dob_len, 1))
+    i_fuzz = keras.Input(name="fuzz", shape=(1, ))
 
-    input_name_1_rs = layers.Rescaling(scale=1./61, offset =-1)(input_name_1)
-    input_name_2_rs = layers.Rescaling(scale=1./61, offset =-1)(input_name_2)
-    
-    input_dob_1_rs = layers.Rescaling(scale=1./29, offset =-1)(input_dob_1)
-    input_dob_2_rs = layers.Rescaling(scale=1./29, offset =-1)(input_dob_2)
-    
-    layer_x_names = layers.Concatenate(axis = 0)([input_name_1, input_name_2])
-    layer_x_names = layers.Flatten()(layer_x_names)
-    layer_x2_names = layers.Lambda(fuzzyChecker)(layer_x_names)
-    layer_x3_names = layers.Dense(2, activation='relu')(layer_x2_names)
-    
-    layer_1_input_name1 = layers.LocallyConnected1D(
-        10, 3, activation='relu')(input_name_1_rs)
-    layer_1_input_name2 = layers.LocallyConnected1D(
-        10, 3, activation='relu')(input_name_2_rs)
-    # layer_1_input_name_1 = layers.Dense(name_len, activation='relu')(input_name_1)
-    # layer_1_input_name_2 = layers.Dense(name_len, activation='relu')(input_name_2)
-    # layer_1_input_dob_1 = layers.Dense(dob_len, activation='relu')(input_dob_1)
-    # layer_1_input_dob_2 = layers.Dense(dob_len, activation='relu')(input_dob_2)
-    layer_1_input_dob1 = layers.LocallyConnected1D(
-        5, 3, activation='relu')(input_dob_1_rs)
-    layer_1_input_dob2 = layers.LocallyConnected1D(
-        5, 3, activation='relu')(input_dob_2_rs)
+    i_name_1_rs = layers.Rescaling(scale=1./61, offset=-1)(i_name_1)
+    i_name_2_rs = layers.Rescaling(scale=1./61, offset=-1)(i_name_2)
 
-    layer_2_names = layers.Concatenate()(
-        [layer_1_input_name1, layer_1_input_name2])
-    layer_2_names = layers.Flatten()(layer_2_names)
-    layer_2_genders = layers.Concatenate()([input_gender_1, input_gender_2])
-    layer_2_dobs = layers.Concatenate()(
-        [layer_1_input_dob1, layer_1_input_dob2])
-    layer_2_dobs = layers.Flatten()(layer_2_dobs)
+    i_dob_1_rs = layers.Rescaling(scale=1./29, offset=-1)(i_dob_1)
+    i_dob_2_rs = layers.Rescaling(scale=1./29, offset=-1)(i_dob_2)
 
-    # layer_3_names = layers.Dense(60, activation='relu')(layer_2_names)
-    # layer_3_genders = layers.Dense(20, activation='relu')(layer_2_genders)
-    # layer_3_dobs = layers.Dense(80, activation='relu')(layer_2_dobs)
+    i_fuzz_rs = layers.Rescaling(scale=1./50, offset=-1)(i_fuzz)
 
-    layer_4_combined = layers.Concatenate()(
-        [layer_2_names, layer_2_genders, layer_2_dobs, layer_x3_names])
-    layer_5_brain = layers.Dense(100, activation='relu')(layer_4_combined)
-    layer_6_decider = layers.Dense(1, activation='sigmoid')(layer_5_brain)
+    l1_name1 = layers.LocallyConnected1D(10, 3, activation='relu')(i_name_1_rs)
+    l1_name2 = layers.LocallyConnected1D(10, 3, activation='relu')(i_name_2_rs)
+    l1_dob1 = layers.LocallyConnected1D(5, 3, activation='relu')(i_dob_1_rs)
+    l1_dob2 = layers.LocallyConnected1D(5, 3, activation='relu')(i_dob_2_rs)
+
+    l2_names = layers.Concatenate()([l1_name1, l1_name2])
+    l2_names = layers.Flatten()(l2_names)
+    l2_genders = layers.Concatenate()([i_gender_1, i_gender_2])
+    l2_dobs = layers.Concatenate()([l1_dob1, l1_dob2])
+    l2_dobs = layers.Flatten()(l2_dobs)
+
+    l3_names = layers.Dense(10, activation='relu')(l2_names)
+    l3_genders = layers.Dense(10, activation='relu')(l2_genders)
+    l3_dobs = layers.Dense(10, activation='relu')(l2_dobs)
+    l3_fuzz = layers.Dense(10, activation='relu')(i_fuzz_rs)
+
+    l4_combined = layers.Concatenate()(
+        [l3_names, l3_genders, l3_dobs, l3_fuzz])
+    l5_brain = layers.Dense(20, activation='relu')(l4_combined)
+    l6_decider = layers.Dense(1, activation='sigmoid')(l5_brain)
 
     model = keras.Model(inputs=[
-        input_name_1,
-        input_gender_1,
-        input_dob_1,
-        input_name_2,
-        input_gender_2,
-        input_dob_2
+        i_name_1,
+        i_gender_1,
+        i_dob_1,
+        i_name_2,
+        i_gender_2,
+        i_dob_2,
+        i_fuzz
     ], outputs=[
-        layer_6_decider
+        l6_decider
     ])
 
     model.compile(loss='binary_crossentropy',
@@ -170,7 +164,8 @@ def to_dict(seq):
         "dob_1":  np.asarray(list(map(lambda x: np.asarray(x[2]), seq))),
         "name_2":  np.asarray(list(map(lambda x: np.asarray(x[3]), seq))),
         "gender_2":  np.asarray(list(map(lambda x: np.asarray(x[4]), seq))),
-        "dob_2":  np.asarray(list(map(lambda x: np.asarray(x[5]), seq)))
+        "dob_2":  np.asarray(list(map(lambda x: np.asarray(x[5]), seq))),
+        "fuzz": np.asarray(list(map(lambda x: fuzzyChecker(x[0], x[3]), seq)))
     }
 
 
