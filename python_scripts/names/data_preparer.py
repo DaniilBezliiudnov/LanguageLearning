@@ -4,12 +4,11 @@ from pipe import select
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 
-def to_normalized_int_sequence(seq, padding_max_len, norm_coeff):
+def to_padded_int_sequence(seq, padding_max_len):
     padded_int_seq = pad_sequences(
         list(seq | select(lambda x:
                           list(x | select(lambda y: ord(y))))), maxlen=padding_max_len)
-    normalized_padded_int_seq = [x/norm_coeff for x in padded_int_seq]
-    return normalized_padded_int_seq
+    return padded_int_seq
 
 
 def date_to_str_sequence(seq):
@@ -17,10 +16,10 @@ def date_to_str_sequence(seq):
 
 
 def normalize_merge_data(names, names_max_len, genders, dates):
-    name_seq = to_normalized_int_sequence(names, names_max_len, 122.0)
-    gender_seq = to_normalized_int_sequence(genders, 1, 122.0)
+    name_seq = to_padded_int_sequence(names, names_max_len)
+    gender_seq = to_padded_int_sequence(genders, 1)
     date_seq = date_to_str_sequence(dates)
-    date_seq = to_normalized_int_sequence(date_seq, 8, 58.0)
+    date_seq = to_padded_int_sequence(date_seq, 8)
     return list(map(lambda x, y, z: (x, y, z), name_seq, gender_seq, date_seq))
 
 

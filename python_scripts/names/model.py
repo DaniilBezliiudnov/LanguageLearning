@@ -87,6 +87,10 @@ def create_model_v1p5(data):
 
     return model
 
+def fuzzyChecker(x):
+    print(x)
+    return x
+
 
 def create_model_v2(data):
     name_len = len(data['training_data'][0][0])
@@ -100,18 +104,29 @@ def create_model_v2(data):
     input_dob_1 = keras.Input(name="dob_1", shape=(dob_len, 1))
     input_dob_2 = keras.Input(name="dob_2", shape=(dob_len, 1))
 
+    input_name_1_rs = layers.Rescaling(scale=1./61, offset =-1)(input_name_1)
+    input_name_2_rs = layers.Rescaling(scale=1./61, offset =-1)(input_name_2)
+    
+    input_dob_1_rs = layers.Rescaling(scale=1./29, offset =-1)(input_dob_1)
+    input_dob_2_rs = layers.Rescaling(scale=1./29, offset =-1)(input_dob_2)
+    
+    layer_x_names = layers.Concatenate(axis = 0)([input_name_1, input_name_2])
+    layer_x_names = layers.Flatten()(layer_x_names)
+    layer_x2_names = layers.Lambda(fuzzyChecker)(layer_x_names)
+    layer_x3_names = layers.Dense(2, activation='relu')(layer_x2_names)
+    
     layer_1_input_name1 = layers.LocallyConnected1D(
-        10, 3, activation='relu')(input_name_1)
+        10, 3, activation='relu')(input_name_1_rs)
     layer_1_input_name2 = layers.LocallyConnected1D(
-        10, 3, activation='relu')(input_name_2)
+        10, 3, activation='relu')(input_name_2_rs)
     # layer_1_input_name_1 = layers.Dense(name_len, activation='relu')(input_name_1)
     # layer_1_input_name_2 = layers.Dense(name_len, activation='relu')(input_name_2)
     # layer_1_input_dob_1 = layers.Dense(dob_len, activation='relu')(input_dob_1)
     # layer_1_input_dob_2 = layers.Dense(dob_len, activation='relu')(input_dob_2)
     layer_1_input_dob1 = layers.LocallyConnected1D(
-        5, 3, activation='relu')(input_dob_1)
+        5, 3, activation='relu')(input_dob_1_rs)
     layer_1_input_dob2 = layers.LocallyConnected1D(
-        5, 3, activation='relu')(input_dob_2)
+        5, 3, activation='relu')(input_dob_2_rs)
 
     layer_2_names = layers.Concatenate()(
         [layer_1_input_name1, layer_1_input_name2])
@@ -126,7 +141,7 @@ def create_model_v2(data):
     # layer_3_dobs = layers.Dense(80, activation='relu')(layer_2_dobs)
 
     layer_4_combined = layers.Concatenate()(
-        [layer_2_names, layer_2_genders, layer_2_dobs])
+        [layer_2_names, layer_2_genders, layer_2_dobs, layer_x3_names])
     layer_5_brain = layers.Dense(100, activation='relu')(layer_4_combined)
     layer_6_decider = layers.Dense(1, activation='sigmoid')(layer_5_brain)
 
