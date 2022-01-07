@@ -80,7 +80,6 @@ def create_model_v2(data):
         create_ratio_branch(i_ratio_n, 10),
         create_ratio_branch(i_ratio_g, 5)])
     l5_brain = layers.Dense(20, activation='relu')(l4_combined)
-    l6_decider = layers.Dense(1, activation='sigmoid')(l5_brain)
 
     model = keras.Model(inputs=[
         i_name_1,
@@ -92,7 +91,7 @@ def create_model_v2(data):
         i_ratio_n,
         i_ratio_g
     ], outputs=[
-        l6_decider
+        layers.Dense(1, activation='sigmoid')(l5_brain)
     ])
 
     model.compile(loss='binary_crossentropy',
