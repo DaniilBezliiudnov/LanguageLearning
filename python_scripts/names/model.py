@@ -27,6 +27,38 @@ def fuzzy_checker(seq1, seq2):
     return fuzz.ratio(chars, chars2)
 
 
+def create_name_branch(i_name_1, i_name_2):
+    i_name_1_rs = p_layers.Rescaling(scale=1./61, offset=-1)(i_name_1)
+    l1_name1 = layers.LocallyConnected1D(10, 3, activation='relu')(i_name_1_rs)
+    i_name_2_rs = p_layers.Rescaling(scale=1./61, offset=-1)(i_name_2)
+    l1_name2 = layers.LocallyConnected1D(10, 3, activation='relu')(i_name_2_rs)
+    l2_names = layers.Concatenate()([l1_name1, l1_name2])
+    l3_names = layers.Flatten()(l2_names)
+    return layers.Dense(5, activation='tanh')(l3_names)
+
+
+def create_dob_branch(i_dob_1, i_dob_2):
+    i_dob_1_rs = p_layers.Rescaling(scale=1./29, offset=-1)(i_dob_1)
+    l1_dob1 = layers.LocallyConnected1D(5, 3, activation='relu')(i_dob_1_rs)
+    i_dob_2_rs = p_layers.Rescaling(scale=1./29, offset=-1)(i_dob_2)
+    l1_dob2 = layers.LocallyConnected1D(5, 3, activation='relu')(i_dob_2_rs)
+    l2_dobs = layers.Concatenate()([l1_dob1, l1_dob2])
+    l2_dobs = layers.Flatten()(l2_dobs)
+    return layers.Dense(10, activation='tanh')(l2_dobs)
+
+
+def create_gender_branch(i_gender_1, i_gender_2):
+    i_gender_1_rs = p_layers.Rescaling(scale=1./61, offset=-1)(i_gender_1)
+    i_gender_2_rs = p_layers.Rescaling(scale=1./61, offset=-1)(i_gender_2)
+    l2_genders = layers.Concatenate()([i_gender_1_rs, i_gender_2_rs])
+    return layers.Dense(10, activation='tanh')(l2_genders)
+
+
+def create_ratio_branch(i_ratio, dense_units):
+    i_ratio_n_rs = p_layers.Rescaling(scale=1./50, offset=-1)(i_ratio)
+    return layers.Dense(dense_units, activation='tanh')(i_ratio_n_rs)
+
+
 def create_model_v2(data):
     name_len = len(data['training_data'][0][0])
     gender_len = len(data['training_data'][0][1])
@@ -38,37 +70,15 @@ def create_model_v2(data):
     i_gender_2 = keras.Input(name="gender_2", shape=(gender_len, ))
     i_dob_1 = keras.Input(name="dob_1", shape=(dob_len, 1))
     i_dob_2 = keras.Input(name="dob_2", shape=(dob_len, 1))
-    i_fuzz_n = keras.Input(name="fuzz_n", shape=(1, ))
-    i_fuzz_g = keras.Input(name="fuzz_g", shape=(1, ))
+    i_ratio_n = keras.Input(name="fuzz_n", shape=(1, ))
+    i_ratio_g = keras.Input(name="fuzz_g", shape=(1, ))
 
-    i_name_1_rs = p_layers.Rescaling(scale=1./61, offset=-1)(i_name_1)
-    i_name_2_rs = p_layers.Rescaling(scale=1./61, offset=-1)(i_name_2)
-    i_gender_1_rs = p_layers.Rescaling(scale=1./61, offset=-1)(i_gender_1)
-    i_gender_2_rs = p_layers.Rescaling(scale=1./61, offset=-1)(i_gender_2)
-    i_dob_1_rs = p_layers.Rescaling(scale=1./29, offset=-1)(i_dob_1)
-    i_dob_2_rs = p_layers.Rescaling(scale=1./29, offset=-1)(i_dob_2)
-    i_fuzz_n_rs = p_layers.Rescaling(scale=1./50, offset=-1)(i_fuzz_n)
-    i_fuzz_g_rs = p_layers.Rescaling(scale=1./50, offset=-1)(i_fuzz_g)
-
-    l1_name1 = layers.LocallyConnected1D(10, 3, activation='relu')(i_name_1_rs)
-    l1_name2 = layers.LocallyConnected1D(10, 3, activation='relu')(i_name_2_rs)
-    l1_dob1 = layers.LocallyConnected1D(5, 3, activation='relu')(i_dob_1_rs)
-    l1_dob2 = layers.LocallyConnected1D(5, 3, activation='relu')(i_dob_2_rs)
-
-    l2_names = layers.Concatenate()([l1_name1, l1_name2])
-    l2_names = layers.Flatten()(l2_names)
-    l2_genders = layers.Concatenate()([i_gender_1_rs, i_gender_2_rs])
-    l2_dobs = layers.Concatenate()([l1_dob1, l1_dob2])
-    l2_dobs = layers.Flatten()(l2_dobs)
-
-    l3_names = layers.Dense(5, activation='tanh')(l2_names)
-    l3_genders = layers.Dense(10, activation='tanh')(l2_genders)
-    l3_dobs = layers.Dense(10, activation='tanh')(l2_dobs)
-    l3_fuzz_n = layers.Dense(10, activation='tanh')(i_fuzz_n_rs)
-    l3_fuzz_g = layers.Dense(5, activation='tanh')(i_fuzz_g_rs)
-
-    l4_combined = layers.Concatenate()(
-        [l3_names, l3_genders, l3_dobs, l3_fuzz_g, l3_fuzz_n])
+    l4_combined = layers.Concatenate()([
+        create_name_branch(i_name_1, i_name_2),
+        create_gender_branch(i_gender_1, i_gender_2),
+        create_dob_branch(i_dob_1, i_dob_2),
+        create_ratio_branch(i_ratio_n, 10),
+        create_ratio_branch(i_ratio_g, 5)])
     l5_brain = layers.Dense(20, activation='relu')(l4_combined)
     l6_decider = layers.Dense(1, activation='sigmoid')(l5_brain)
 
@@ -79,15 +89,14 @@ def create_model_v2(data):
         i_name_2,
         i_gender_2,
         i_dob_2,
-        i_fuzz_n,
-        i_fuzz_g
+        i_ratio_n,
+        i_ratio_g
     ], outputs=[
         l6_decider
     ])
 
     model.compile(loss='binary_crossentropy',
                   optimizer='adam', metrics=['accuracy'])
-    # print(model.summary())
 
     return model
 
