@@ -1,7 +1,7 @@
 import random
 import numpy as np
 from pipe import select
-from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.python.keras.preprocessing.sequence import pad_sequences
 
 
 def to_padded_int_sequence(seq, padding_max_len):
