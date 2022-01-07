@@ -34,7 +34,7 @@ def create_name_branch(i_name_1, i_name_2):
     l1_name2 = layers.LocallyConnected1D(10, 3, activation='relu')(i_name_2_rs)
     l2_names = layers.Concatenate()([l1_name1, l1_name2])
     l3_names = layers.Flatten()(l2_names)
-    return layers.Dense(5, activation='tanh')(l3_names)
+    return layers.Dense(10, activation='tanh')(l3_names)
 
 
 def create_dob_branch(i_dob_1, i_dob_2):
@@ -44,7 +44,7 @@ def create_dob_branch(i_dob_1, i_dob_2):
     l1_dob2 = layers.LocallyConnected1D(5, 3, activation='relu')(i_dob_2_rs)
     l2_dobs = layers.Concatenate()([l1_dob1, l1_dob2])
     l2_dobs = layers.Flatten()(l2_dobs)
-    return layers.Dense(10, activation='tanh')(l2_dobs)
+    return layers.Dense(5, activation='tanh')(l2_dobs)
 
 
 def create_gender_branch(i_gender_1, i_gender_2):
@@ -118,9 +118,9 @@ def train_model(model: keras.Sequential, data, epochs):
         datetime.now().strftime("%Y%m%d-%H%M%S")
     tensorboard_callback = callbacks.TensorBoard(log_dir=logdir)
     early_stop_callback = callbacks.EarlyStopping(
-        monitor='val_accuracy', patience=10, min_delta=0.0001, restore_best_weights=True, verbose=0)
+        monitor='val_accuracy', patience=5, min_delta=0.0001, restore_best_weights=True, verbose=0)
     learning_rate_callback = callbacks.LearningRateScheduler(
-        lambda epoch, lr: lr if epoch < 16 else lr * 0.93, verbose=0)
+        lambda epoch, lr: lr if epoch < 3 else lr * 0.9, verbose=0)
 
     x_train = to_dict(data['training_data'])
     y_train = tf.convert_to_tensor(data['training_labels'])
