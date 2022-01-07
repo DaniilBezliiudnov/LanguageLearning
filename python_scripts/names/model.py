@@ -79,7 +79,7 @@ def create_model_v2(data):
         create_dob_branch(i_dob_1, i_dob_2),
         create_ratio_branch(i_ratio_n, 10),
         create_ratio_branch(i_ratio_g, 5)])
-    l5_brain = layers.Dense(20, activation='relu')(l4_combined)
+    l5_brain = layers.Dense(20, activation='tanh')(l4_combined)
 
     model = keras.Model(inputs=[
         i_name_1,
@@ -116,7 +116,8 @@ def to_dict(seq):
 def train_model(model: keras.Sequential, data, epochs):
     logdir = f'logs/fit/{epochs}/' + \
         datetime.now().strftime("%Y%m%d-%H%M%S")
-    tensorboard_callback = callbacks.TensorBoard(log_dir=logdir)
+    tensorboard_callback = callbacks.TensorBoard(
+        log_dir=logdir, histogram_freq=1)
     early_stop_callback = callbacks.EarlyStopping(
         monitor='val_accuracy', patience=5, min_delta=0.0001, restore_best_weights=True, verbose=0)
     learning_rate_callback = callbacks.LearningRateScheduler(

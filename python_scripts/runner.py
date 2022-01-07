@@ -9,19 +9,19 @@ def run_predict(my_model, names, genders, dates):
     normalized_data = data_preparer.normalize_merge_data(
         names, len(names[0]), genders, dates)
 
-    for i, x in enumerate(normalized_data):
+    for i_x, x in enumerate(normalized_data):
 
         prediction_data = list(map(
-            lambda s, i=i: [normalized_data[i][0],
-                            normalized_data[i][1],
-                            normalized_data[i][2],
-                            s[0], s[1], s[2]],
-            normalized_data[i+1:]))
+            lambda d, i=i_x: [normalized_data[i][0],
+                              normalized_data[i][1],
+                              normalized_data[i][2],
+                              d[0], d[1], d[2]],
+            normalized_data))
 
         indicies = predict(my_model, prediction_data)
-        dups = list(map(lambda j, i=i:
-                        f'{j[1]:.2} : {names[i]}-{genders[i]}-{dates[i]}' +
-                        f' | {names[j[0]]}-{genders[j[0]]}-{dates[j[0]]}',
+        dups = list(map(lambda i, j=i_x:
+                        f'{i[1]:.2} : {names[j]}-{genders[j]}-{dates[j]}' +
+                        f' | {names[i[0]]}-{genders[i[0]]}-{dates[i[0]]}',
                         indicies))
         print('\n'.join(dups))
 
