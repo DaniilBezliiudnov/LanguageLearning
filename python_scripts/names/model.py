@@ -64,8 +64,8 @@ def create_model_v2(data):
     gender_len = len(data['training_data'][0][1])
     dob_len = len(data['training_data'][0][2])
 
-    i_name_1 = keras.Input(name="name_1", shape=(name_len, 1))
-    i_name_2 = keras.Input(name="name_2", shape=(name_len, 1))
+    # i_name_1 = keras.Input(name="name_1", shape=(name_len, 1))
+    # i_name_2 = keras.Input(name="name_2", shape=(name_len, 1))
     i_gender_1 = keras.Input(name="gender_1", shape=(gender_len, ))
     i_gender_2 = keras.Input(name="gender_2", shape=(gender_len, ))
     i_dob_1 = keras.Input(name="dob_1", shape=(dob_len, 1))
@@ -74,7 +74,7 @@ def create_model_v2(data):
     i_ratio_g = keras.Input(name="fuzz_g", shape=(1, ))
 
     l4_combined = layers.Concatenate()([
-        create_name_branch(i_name_1, i_name_2),
+        # create_name_branch(i_name_1, i_name_2),
         create_gender_branch(i_gender_1, i_gender_2),
         create_dob_branch(i_dob_1, i_dob_2),
         create_ratio_branch(i_ratio_n, 10),
@@ -82,10 +82,10 @@ def create_model_v2(data):
     l5_brain = layers.Dense(20, activation='tanh')(l4_combined)
 
     model = keras.Model(inputs=[
-        i_name_1,
+        # i_name_1,
         i_gender_1,
         i_dob_1,
-        i_name_2,
+        # i_name_2,
         i_gender_2,
         i_dob_2,
         i_ratio_n,
@@ -102,10 +102,10 @@ def create_model_v2(data):
 
 def to_dict(seq):
     return {
-        "name_1": np.asarray(list(map(lambda x: np.asarray(x[0]), seq))),
+        # "name_1": np.asarray(list(map(lambda x: np.asarray(x[0]), seq))),
         "gender_1":  np.asarray(list(map(lambda x: np.asarray(x[1]), seq))),
         "dob_1":  np.asarray(list(map(lambda x: np.asarray(x[2]), seq))),
-        "name_2":  np.asarray(list(map(lambda x: np.asarray(x[3]), seq))),
+        # "name_2":  np.asarray(list(map(lambda x: np.asarray(x[3]), seq))),
         "gender_2":  np.asarray(list(map(lambda x: np.asarray(x[4]), seq))),
         "dob_2":  np.asarray(list(map(lambda x: np.asarray(x[5]), seq))),
         "fuzz_n": np.asarray(list(map(lambda x: fuzzy_checker(x[0], x[3]), seq))),
@@ -122,7 +122,10 @@ def train_model(model: keras.Sequential, data, epochs):
         monitor='val_accuracy', patience=5, min_delta=0.0001, restore_best_weights=True, verbose=0)
     learning_rate_callback = callbacks.LearningRateScheduler(
         lambda epoch, lr: lr if epoch < 3 else lr * 0.9, verbose=0)
-
+    save_callback = callbacks.ModelCheckpoint(
+        filepath='logs/model',
+        save_best_only=True
+    )
     x_train = to_dict(data['training_data'])
     y_train = tf.convert_to_tensor(data['training_labels'])
     x_val = to_dict(data['test_data'])
@@ -134,7 +137,9 @@ def train_model(model: keras.Sequential, data, epochs):
         epochs=epochs,
         validation_data=(x_val, y_val),
         callbacks=[tensorboard_callback,
-                   early_stop_callback, learning_rate_callback]
+                   early_stop_callback,
+                   learning_rate_callback,
+                   save_callback]
     )
 
     return training_history

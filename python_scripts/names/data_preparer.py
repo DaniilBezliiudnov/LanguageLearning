@@ -89,4 +89,7 @@ def prepare_data(names, names_max_len, genders, dates, total_data_percent):
     total_seq += prepare_seq(data_seq, rev_data_seq, 0)
     total_seq += prepare_seq(data_seq, shifted_data_seq, 0)
 
+    # total_seq += list(map(lambda x: [x[3], x[4],
+    #                   x[5], x[0], x[1], x[2]], total_seq))
+
     return finalize_data_preparation(total_seq, total_data_percent)
