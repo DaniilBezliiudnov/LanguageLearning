@@ -16,7 +16,7 @@ def run_predict(my_model, n_len, names, genders, dates):
                               normalized_data[i][1],
                               normalized_data[i][2],
                               d[0], d[1], d[2]],
-            normalized_data))
+            normalized_data[i_x+1:]))
 
         indicies = predict(my_model, prediction_data)
         dups = list(map(lambda i, j=i_x:

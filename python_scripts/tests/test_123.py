@@ -1,6 +1,3 @@
-# content of test_sample.py
-
-
 def inc(x_val):
     return x_val + 1
 
