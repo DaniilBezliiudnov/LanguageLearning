@@ -15,12 +15,13 @@ def date_to_str_sequence(seq):
     return list(seq | select(lambda x: x.strftime("%Y%m%d")))
 
 
-def normalize_merge_data(names, names_max_len, genders, dates):
+def normalize_merge_data(names, last_names, names_max_len, genders, dates):
     name_seq = to_padded_int_sequence(names, names_max_len)
+    last_name_seq = to_padded_int_sequence(last_names, names_max_len)
     gender_seq = to_padded_int_sequence(genders, 1)
     date_seq = date_to_str_sequence(dates)
     date_seq = to_padded_int_sequence(date_seq, 8)
-    return list(map(lambda x, y, z: (x, y, z), name_seq, gender_seq, date_seq))
+    return list(map(lambda x, y, z, w: (x, y, z, w), name_seq, last_name_seq, gender_seq, date_seq))
 
 
 def randomize_list(list_to_sort: list):
@@ -33,14 +34,15 @@ def randomize_list(list_to_sort: list):
 def randomize(list_of_lists):
     return (
         randomize_list(list_of_lists[0]),
-        list_of_lists[1],
-        randomize_list(list_of_lists[2])
+        randomize_list(list_of_lists[1]),
+        list_of_lists[2],
+        randomize_list(list_of_lists[3])
     )
 
 
 def prepare_seq(seq_a, seq_b, label):
     return list(
-        map(lambda x, y: (label, [x[0], x[1], x[2], y[0], y[1], y[2]]), seq_a, seq_b))
+        map(lambda x, y: (label, [x[0], x[1], x[2], x[3], y[0], y[1], y[2], y[3]]), seq_a, seq_b))
 
 
 def finalize_data_preparation(total_seq, total_data_percent):
@@ -72,8 +74,9 @@ def finalize_data_preparation(total_seq, total_data_percent):
     }
 
 
-def prepare_data(names, names_max_len, genders, dates, total_data_percent):
-    data_seq = normalize_merge_data(names, names_max_len, genders, dates)
+def prepare_data(names, last_names, names_max_len, genders, dates, total_data_percent):
+    data_seq = normalize_merge_data(
+        names, last_names, names_max_len, genders, dates)
 
     rev_data_seq = data_seq.copy()
     rev_data_seq.reverse()
@@ -89,7 +92,7 @@ def prepare_data(names, names_max_len, genders, dates, total_data_percent):
     total_seq += prepare_seq(data_seq, rev_data_seq, 0)
     total_seq += prepare_seq(data_seq, shifted_data_seq, 0)
 
-    total_seq += list(map(lambda x: (x[0], [x[1][3], x[1][4],
-                      x[1][5], x[1][0], x[1][1], x[1][2]]), total_seq))
+    # total_seq += list(map(lambda x: (x[0], [x[1][3], x[1][4],
+    #                   x[1][5], x[1][0], x[1][1], x[1][2]]), total_seq))
 
     return finalize_data_preparation(total_seq, total_data_percent)

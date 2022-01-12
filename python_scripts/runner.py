@@ -5,9 +5,9 @@ from names import model
 from predicter import predict
 
 
-def run_predict(my_model, n_len, names, genders, dates):
+def run_predict(my_model, n_len, names, last_names, genders, dates):
     normalized_data = data_preparer.normalize_merge_data(
-        names, n_len, genders, dates)
+        names, last_names, n_len, genders, dates)
 
     for i_x, x in enumerate(normalized_data):
 
@@ -15,26 +15,33 @@ def run_predict(my_model, n_len, names, genders, dates):
             lambda d, i=i_x: [normalized_data[i][0],
                               normalized_data[i][1],
                               normalized_data[i][2],
-                              d[0], d[1], d[2]],
+                              normalized_data[i][3],
+                              d[0], d[1], d[2], d[3]],
             normalized_data[i_x+1:]))
 
         indicies = predict(my_model, prediction_data)
-        dups = list(map(lambda i, j=i_x:
-                        f'{i[1]:.2} : {names[j]}-{genders[j]}-{dates[j]}' +
-                        f' | {names[i[0]]}-{genders[i[0]]}-{dates[i[0]]}',
-                        indicies))
-        print('\n'.join(dups))
+        dups = '\n'.join(list(map(lambda i, j=i_x:
+                                  f'{i[1]:.2} : {names[j]}-{last_names[j]}-{genders[j]}-{dates[j]}' +
+                                  f' : {names[i[0]]}-{last_names[i[0]]}-{genders[i[0]]}-{dates[i[0]]}',
+                                  indicies)))
+        if len(dups) > 1:
+            print(dups)
+            f = open("logs/results.txt", "a")
+            f.write(dups + '\n')
+            f.close()
+        else:
+            print(f'no duplicates was found for {names[i_x]}')
 
 
-def run(names, n_len, genders, dates):
+def run(names, last_names, n_len, genders, dates):
     train_data = data_preparer.prepare_data(
-        names, n_len, genders, dates, 100)
+        names, last_names, n_len, genders, dates, 100)
     my_model = model.create_model_v2(train_data)
     history = model.train_model(my_model, train_data, 80)
     return my_model
 
 
-(names, genders, dates) = data_reader.get_data(
+(names, last_names, genders, dates) = data_reader.get_data(
     config.root_dir + '\\data\\names.csv')
-m = run(names, 15, genders, dates)
-run_predict(m, 15, names, genders, dates)
+m = run(names, last_names, 15, genders, dates)
+run_predict(m, 15, names, last_names, genders, dates)

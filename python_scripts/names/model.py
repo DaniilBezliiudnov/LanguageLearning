@@ -61,35 +61,43 @@ def create_ratio_branch(i_ratio, dense_units):
 
 def create_model_v2(data):
     name_len = len(data['training_data'][0][0])
-    gender_len = len(data['training_data'][0][1])
-    dob_len = len(data['training_data'][0][2])
+    gender_len = len(data['training_data'][0][2])
+    dob_len = len(data['training_data'][0][3])
 
     i_name_1 = keras.Input(name="name_1", shape=(name_len, 1))
     i_name_2 = keras.Input(name="name_2", shape=(name_len, 1))
+    i_last_name_1 = keras.Input(name="last_name_1", shape=(name_len, 1))
+    i_last_name_2 = keras.Input(name="last_name_2", shape=(name_len, 1))
     i_gender_1 = keras.Input(name="gender_1", shape=(gender_len, ))
     i_gender_2 = keras.Input(name="gender_2", shape=(gender_len, ))
     i_dob_1 = keras.Input(name="dob_1", shape=(dob_len, 1))
     i_dob_2 = keras.Input(name="dob_2", shape=(dob_len, 1))
     i_ratio_n = keras.Input(name="fuzz_n", shape=(1, ))
-    i_ratio_g = keras.Input(name="fuzz_g", shape=(1, ))
+    i_ratio_ln = keras.Input(name="fuzz_ln", shape=(1, ))
+    i_ratio_d = keras.Input(name="fuzz_d", shape=(1, ))
 
     l4_combined = layers.Concatenate()([
         create_name_branch(i_name_1, i_name_2),
+        create_name_branch(i_last_name_1, i_last_name_2),
         create_gender_branch(i_gender_1, i_gender_2),
         create_dob_branch(i_dob_1, i_dob_2),
         create_ratio_branch(i_ratio_n, 10),
-        create_ratio_branch(i_ratio_g, 5)])
+        create_ratio_branch(i_ratio_ln, 10),
+        create_ratio_branch(i_ratio_d, 5)])
     l5_brain = layers.Dense(20, activation='tanh')(l4_combined)
 
     model = keras.Model(inputs=[
         i_name_1,
+        i_last_name_1,
         i_gender_1,
         i_dob_1,
         i_name_2,
+        i_last_name_2,
         i_gender_2,
         i_dob_2,
         i_ratio_n,
-        i_ratio_g
+        i_ratio_ln,
+        i_ratio_d
     ], outputs=[
         layers.Dense(1, activation='sigmoid')(l5_brain)
     ])
@@ -107,13 +115,16 @@ def create_model_v2(data):
 def to_dict(seq):
     return {
         "name_1": np.asarray(list(map(lambda x: np.asarray(x[0]), seq))),
-        "gender_1":  np.asarray(list(map(lambda x: np.asarray(x[1]), seq))),
-        "dob_1":  np.asarray(list(map(lambda x: np.asarray(x[2]), seq))),
-        "name_2":  np.asarray(list(map(lambda x: np.asarray(x[3]), seq))),
-        "gender_2":  np.asarray(list(map(lambda x: np.asarray(x[4]), seq))),
-        "dob_2":  np.asarray(list(map(lambda x: np.asarray(x[5]), seq))),
-        "fuzz_n": np.asarray(list(map(lambda x: fuzzy_checker(x[0], x[3]), seq))),
-        "fuzz_g": np.asarray(list(map(lambda x: fuzzy_checker(x[2], x[5]), seq)))
+        "last_name_1": np.asarray(list(map(lambda x: np.asarray(x[1]), seq))),
+        "gender_1":  np.asarray(list(map(lambda x: np.asarray(x[2]), seq))),
+        "dob_1":  np.asarray(list(map(lambda x: np.asarray(x[3]), seq))),
+        "name_2":  np.asarray(list(map(lambda x: np.asarray(x[4]), seq))),
+        "last_name_2":  np.asarray(list(map(lambda x: np.asarray(x[5]), seq))),
+        "gender_2":  np.asarray(list(map(lambda x: np.asarray(x[6]), seq))),
+        "dob_2":  np.asarray(list(map(lambda x: np.asarray(x[7]), seq))),
+        "fuzz_n": np.asarray(list(map(lambda x: fuzzy_checker(x[0], x[4]), seq))),
+        "fuzz_ln": np.asarray(list(map(lambda x: fuzzy_checker(x[1], x[5]), seq))),
+        "fuzz_d": np.asarray(list(map(lambda x: fuzzy_checker(x[3], x[7]), seq)))
     }
 
 
