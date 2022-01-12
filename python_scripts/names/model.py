@@ -136,7 +136,7 @@ def train_model(model: keras.Sequential, data, epochs):
     early_stop_callback = callbacks.EarlyStopping(
         monitor='val_accuracy', patience=5, min_delta=0.0001, restore_best_weights=True, verbose=0)
     learning_rate_callback = callbacks.LearningRateScheduler(
-        lambda epoch, lr: lr if epoch < 3 else lr * 0.9, verbose=0)
+        lambda epoch, lr: lr if epoch < 2 else lr * 0.9, verbose=0)
     save_callback = callbacks.ModelCheckpoint(
         filepath='logs/model' + datetime.now().strftime("%Y%m%d-%H%M%S"),
         save_best_only=True

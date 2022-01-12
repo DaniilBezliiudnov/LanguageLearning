@@ -22,7 +22,7 @@ def run_predict(my_model, n_len, names, last_names, genders, dates):
         indicies = predict(my_model, prediction_data)
         dups = '\n'.join(list(map(lambda i, j=i_x:
                                   f'{i[1]:.2} : {names[j]}-{last_names[j]}-{genders[j]}-{dates[j]}' +
-                                  f' : {names[i[0]]}-{last_names[i[0]]}-{genders[i[0]]}-{dates[i[0]]}',
+                                  f' : {names[i[0]+i_x+1]}-{last_names[i[0]+i_x+1]}-{genders[i[0]+i_x+1]}-{dates[i[0]+i_x+1]}',
                                   indicies)))
         if len(dups) > 1:
             print(dups)
@@ -37,7 +37,7 @@ def run(names, last_names, n_len, genders, dates):
     train_data = data_preparer.prepare_data(
         names, last_names, n_len, genders, dates, 100)
     my_model = model.create_model_v2(train_data)
-    history = model.train_model(my_model, train_data, 80)
+    history = model.train_model(my_model, train_data, 20)
     return my_model
 
 
